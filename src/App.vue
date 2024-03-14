@@ -5,20 +5,23 @@ import Footer from './components/Footer.vue'
 import { onMounted, ref } from 'vue';
 import { auth } from '@/firebase';
 import { useRouter } from 'vue-router';
-
+const isAuthenticated = ref(false); 
 const router = useRouter(); // Obtener el enrutador de Vue Router
-const isAuthenticated = ref(false); // Variable reactiva para controlar si el usuario está autenticado
-let logoutTimeout; // Variable para almacenar el temporizador de cierre de sesión
+
+auth.onAuthStateChanged(user => {
+  isAuthenticated.value = !!user;
+});
 
 onMounted(() => {
-  auth.onAuthStateChanged(user => {
-    console.log("mensaje ------>", user);
-    isAuthenticated.value = user !== null;
-    if (isAuthenticated.value) {
-      logoutAfterInactivity();
-    }
-  });
+  if (isAuthenticated.value==false) {
+    console.log("isAuthenticated ----->",isAuthenticated);
+    //router.push('/login'); // Redirigir al usuario a la página de inicio de sesión si no está autenticado
+  }
 });
+
+/*// Variable reactiva para controlar si el usuario está autenticado
+let logoutTimeout; // Variable para almacenar el temporizador de cierre de sesión
+
 
 const handleUserInteraction = () => {
   if (isAuthenticated.value) {
@@ -44,7 +47,7 @@ const resetLogoutTimer = () => {
 };
 
 window.addEventListener('mousemove', handleUserInteraction);
-window.addEventListener('keypress', handleUserInteraction);
+window.addEventListener('keypress', handleUserInteraction);*/
 </script>
 
 <template>

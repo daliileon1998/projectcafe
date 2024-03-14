@@ -4,7 +4,12 @@ import About from './views/AboutUs.vue';
 import Services from './views/Contact.vue';
 import Login from './views/Login.vue';
 import Cursos from './views/Cursos.vue';
+import AddCursos from './views/AddCursos.vue';
 import Admin from './views/Admin.vue';
+import CursosUsers from './views/CursosUsers.vue';
+import ModuloUsers from './views/ModuloUsers.vue';
+import Modulos from './views/Modulos.vue';
+import AddModulos from './views/AddModulos.vue';
 import { auth } from '@/firebase';
 
 const routes = [
@@ -29,6 +34,28 @@ const routes = [
     component: Login
   },
   {
+    path: '/CursosUsers',
+    name: 'CursosUsers',
+    component: CursosUsers
+  },
+  {
+    path: '/ModuloUsers',
+    name: 'ModuloUsers',
+    component: ModuloUsers
+  },
+  {
+    path: '/agregarcurso/:id?',
+    name: 'AddCursos',
+    component: AddCursos,
+    props: true,
+  },
+  {
+    path: '/AddModulos/:id?',
+    name: 'AddModulos',
+    component: AddModulos,
+    props: true,
+  },
+  {
     path: '/admin',
     name: 'Admin',
     component: Admin,
@@ -38,16 +65,11 @@ const routes = [
     path: '/cursos',
     name: 'Cursos',
     component: () => Cursos,
-    // Esperar a que la inicialización de Firestore esté completa antes de cargar el componente
-   /* beforeEnter: async (to, from, next) => {
-      try {
-        await initializeFirestore(); // Inicializar Firestore
-        next(); // Continuar con la navegación
-      } catch (error) {
-        console.error('Error al inicializar Firestore:', error);
-        next(error); // Pasar el error a la siguiente función de middleware
-      }
-    }*/
+  },
+  {
+    path: '/modulos',
+    name: 'modulos',
+    component: () => Modulos,
   },
 
 ];

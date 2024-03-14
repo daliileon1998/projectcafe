@@ -20,7 +20,7 @@
             </router-link>
           </li>
           <li class="nav-item list-group-item list-group-item-action bg-light">
-            <router-link class="nav-link" to="/modulo">
+            <router-link class="nav-link" to="/modulos">
               <font-awesome-icon :icon="['fas', 'book']" size="xl" />
               <span class="ms-2 d-none d-md-inline">Módulo</span>
             </router-link>
