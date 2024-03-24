@@ -164,7 +164,7 @@
       <div class="row">
         <div class="col-lg-6">
           <label>Editor</label>
-          <VueQuillEditor v-model="content" />
+      
         </div>
       </div>
     </form>
@@ -201,7 +201,6 @@
 <script>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router'; 
-import VueQuillEditor from 'vue3-quill-editor';
 import { getModulosFromFirebase,guardarModulosFromFirebase,updateEstadoModulo} from '@/firebase';
 
 export default {
@@ -305,7 +304,6 @@ return {
 };
 },
 components:{
-  VueQuillEditor
 }
 
 };

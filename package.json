@@ -9,19 +9,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-adapter-ckfinder": "^41.2.0",
+    "@ckeditor/ckeditor5-build-classic": "^41.2.0",
+    "@ckeditor/ckeditor5-image": "^41.2.0",
+    "@ckeditor/ckeditor5-upload": "^41.2.0",
+    "@ckeditor/ckeditor5-vue": "^5.1.0",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/vue-fontawesome": "^3.0.6",
+    "axios": "^1.6.7",
     "bootstrap": "^5.3.0-alpha1",
-    "express": "^4.18.3",
     "firebase": "^10.8.0",
-    "multer": "^1.4.5-lts.1",
-    "nodemon": "^3.1.0",
     "popper.js": "1.16",
     "vue": "^3.4.15",
     "vue-router": "^4.3.0",
-    "vue3-modal": "^0.1.6",
-    "vue3-quill-editor": "^0.0.23-0"
+    "vue3-modal": "^0.1.6"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.3",

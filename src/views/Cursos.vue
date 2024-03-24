@@ -36,21 +36,21 @@
             <!-- Cuerpo de la tabla -->
             <tbody>
               <!-- Filas de la tabla, aplicando el filtro de búsqueda -->
-              <tr v-for="(curso, index) in filteredCursos" :key="curso.id">
+              <tr v-for="(curso, index) in filteredCursos" :key="curso._id">
                 <td>{{ index + 1 }}</td>
                 <td>{{ curso.code }}</td>
                 <td>{{ curso.name }}</td>
                 <td>{{ curso.description }}</td>
-                <td></td>
-                <td>{{ curso.estado === '1' ? 'Activo' : 'Inactivo' }}</td>
+                <td><img v-if="curso.image" :src="'http://localhost:5000/' + curso.image" alt="Imagen de curso" style="max-width: 100px; max-height: 100px;"></td>
+                <td>{{ curso.state === '1' ? 'Activo' : 'Inactivo' }}</td>
                 <td>
                   <!-- Botones de acción -->
-                  <router-link :to="{ name: 'AddCursos', params: { id: curso.id } }" class="btn btn-warning">
+                  <router-link :to="{ name: 'AddCursos', params: { id: curso._id } }" class="btn btn-warning">
                     <font-awesome-icon :icon="['fas', 'pen-to-square']" size="xl"/>
                   </router-link>
-                  <button :class="['btn',curso.estado === '0' ? 'btn-success' : 'btn-danger']" @click="editarEstado(curso.id,curso.estado)">
+                  <button :class="['btn',curso.state === '0' ? 'btn-success' : 'btn-danger']" @click="editarEstado(curso._id,curso.state)">
                     <font-awesome-icon :icon="curso.estado === '0' ? ['fas', 'toggle-on'] : ['fas', 'toggle-off']" />
-                    <span v-if="curso.estado === '1'" style="color: white"> Inactivar</span>
+                    <span v-if="curso.state === '1'" style="color: white"> Inactivar</span>
                     <span v-else style="color: white"> Activar</span>
                   </button>
                 </td>
@@ -83,7 +83,8 @@
 
 <script>
 import { ref, onMounted, computed } from 'vue';
-import { getCursosFromFirebase, updateEstadoCurso } from '@/firebase';
+import axios from 'axios';
+//import { getCursosFromFirebase, updateEstadoCurso } from '@/firebase';
 
 export default {
   name: 'Cursos',
@@ -96,8 +97,10 @@ export default {
     // Llama a getCursosFromFirebase cuando el componente se ha montado
     const cargarCursos = async () => {
       try {
-        cursos.value = await getCursosFromFirebase();
-        console.log("cursos -------->",cursos);
+        //cursos.value = await getCursosFromFirebase();
+        const response = await axios.get('http://localhost:5000/courses');
+        cursos.value = response.data.Courses;
+        console.log("cursos ------->",cursos);
       } catch (error) {
         console.error('Error al obtener cursos desde Firebase:', error);
       }
@@ -144,7 +147,11 @@ export default {
       // Mostrar mensaje de confirmación antes de editar el estado
       if (window.confirm('¿Estás seguro de que deseas cambiar el estado del curso?')) {
         const newEstado = estado === '0' ? '1' : '0';
-        await updateEstadoCurso(id, newEstado);
+        console.log(id);
+        let resultado = await axios.patch(`http://localhost:5000/courses/${id}/state`, { state: newEstado });
+        //await updateEstadoCurso(id, newEstado);
+
+        console.log("resultado ------->",resultado);
         console.log('Estado del curso actualizado correctamente');
         // Recargar los cursos después de editar el estado
         await cargarCursos();

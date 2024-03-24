@@ -3,7 +3,9 @@
       <h2 style="text-align: center;padding-top: 20px;">✏️Conoce Nuestros Cursos📚</h2>
       <div class="container" style="margin-top: 40px; margin-bottom: 20px;">
         <div class="row text-center">
-          <div class="col-md-4" v-for="(course, index) in paginatedCourses" :key="index">
+          
+            <div class="col-md-4" v-for="(course, index) in paginatedCourses" :key="index">
+              <router-link to="/CursosUsers" style="color: #F5F5DC;">
             <div class="card" style="margin-bottom: 20px;">
               <div class="card-header">
                 <p class="card-text" style="font-weight: bold; font-size: 1.2em;">{{ course.name }}</p>
@@ -13,6 +15,7 @@
                 <p class="card-text">{{ course.description }}</p>
               </div>
             </div>
+          </router-link>
           </div>
         </div>
         <nav aria-label="Navegación de páginas">

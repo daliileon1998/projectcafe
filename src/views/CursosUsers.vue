@@ -19,8 +19,8 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                   <ul class="navbar-nav me-auto mb-2 mb-lg-0 d-flex flex-column" style="width: 100%;">
-                      <button class="nav-link btn btn-primary gold btn-lg mb-3 modulo-button text-white" aria-current="page">Modulo 1</button>
-                    <button class="nav-link btn btn-primary gold btn-lg mb-3 modulo-button text-white">Modulo 2</button>
+                    <button class="nav-link btn btn-primary gold btn-lg mb-3 modulo-button text-white" aria-current="page"><router-link to="/ModuloUsers" style="color: #F5F5DC ; text-decoration: none;">Modulo 1</router-link></button>
+                    <button class="nav-link btn btn-primary gold btn-lg mb-3 modulo-button text-white"><router-link to="/ModuloUsers" style="color: #F5F5DC ; text-decoration: none;">Modulo 2</router-link></button>
                     <button class="nav-link btn btn-primary gold btn-lg mb-3 modulo-button text-white">Modulo 3</button>
                     <button class="nav-link btn btn-primary gold btn-lg mb-3 modulo-button text-white">Modulo 4</button>
                   </ul>
