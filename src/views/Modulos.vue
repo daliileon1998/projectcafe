@@ -220,9 +220,13 @@ export default {
 
     // Filtro computado para aplicar búsqueda
     const filteredModulos = computed(() => {
+      if(Array.isArray(modulos.value) && modulos.value.length > 0){
       return modulos.value.filter(modulo =>
         modulo.name.toLowerCase().includes(search.value.toLowerCase())
       );
+      }else{
+        return [];
+      }
     });
 
     // Métodos para la paginación

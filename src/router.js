@@ -10,6 +10,8 @@ import CursosUsers from './views/CursosUsers.vue';
 import ModuloUsers from './views/ModuloUsers.vue';
 import Modulos from './views/Modulos.vue';
 import AddModulos from './views/AddModulos.vue';
+import Users from './views/Users.vue';
+import AddUsers from './views/AddUsers.vue';
 import { auth } from '@/firebase';
 
 const routes = [
@@ -43,18 +45,7 @@ const routes = [
     name: 'ModuloUsers',
     component: ModuloUsers
   },
-  {
-    path: '/agregarcurso/:id?',
-    name: 'AddCursos',
-    component: AddCursos,
-    props: true,
-  },
-  {
-    path: '/AddModulos/:id?',
-    name: 'AddModulos',
-    component: AddModulos,
-    props: true,
-  },
+  // PANTALLA ADMIN
   {
     path: '/admin',
     name: 'Admin',
@@ -65,11 +56,40 @@ const routes = [
     path: '/cursos',
     name: 'Cursos',
     component: () => Cursos,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/agregarcurso/:id?',
+    name: 'AddCursos',
+    component: AddCursos,
+    props: true,
+    meta: { requiresAuth: true }
   },
   {
     path: '/modulos',
     name: 'modulos',
     component: () => Modulos,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/AddModulos/:id?',
+    name: 'AddModulos',
+    component: AddModulos,
+    props: true,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/users',
+    name: 'Users',
+    component: () => Users,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/agregaruser/:id?',
+    name: 'AddUser',
+    component: AddUsers,
+    props: true,
+    meta: { requiresAuth: true }
   },
 
 ];

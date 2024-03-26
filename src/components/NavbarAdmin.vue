@@ -26,6 +26,12 @@
             </router-link>
           </li>
           <li class="nav-item list-group-item list-group-item-action bg-light">
+            <router-link class="nav-link" to="/users">
+              <font-awesome-icon :icon="['fas', 'user']" size="xl" />
+              <span class="ms-2 d-none d-md-inline">Usuario</span>
+            </router-link>
+          </li>
+          <li class="nav-item list-group-item list-group-item-action bg-light">
             <a class="nav-link" href="#" @click="confirmLogout">
               <font-awesome-icon :icon="['fas', 'arrow-right-from-bracket']" size="xl" />
               <span class="ms-2 d-none d-md-inline">Salir</span>
