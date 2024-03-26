@@ -46,20 +46,18 @@
                 <td>{{ modulo.course.name }}</td>
                 <td><img v-if="modulo.image" :src="'http://localhost:5000/' + modulo.image" alt="Imagen de curso"
                     style="max-width: 100px; max-height: 100px;"></td>
-                <td>
-                <td>
+                <td style="text-align: center;">
                   <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
                     @click="openModal(modulo)">Abrir modal</button>
                 </td>
-                </td>
                 <td>{{ modulo.state === '1' ? 'Activo' : 'Inactivo' }}</td>
-                <td>
+                <td style="text-align: center;">
                   <!-- Botones de acción -->
                   <router-link :to="{ name: 'AddModulos', params: { id: modulo._id } }" class="btn btn-warning">
                     <font-awesome-icon :icon="['fas', 'pen-to-square']" size="xl" />
                   </router-link>
-                  <button :class="['btn', modulo.state === '0' ? 'btn-success' : 'btn-danger']"
-                    @click="editarEstado(modulo.id, modulo.state)">
+                  <button :class="['btn', modulo.state === '0' ? 'btn-success' : 'btn-secondary']"
+                    @click="editarEstado(modulo._id, modulo.state)">
                     <font-awesome-icon :icon="modulo.state === '0' ? ['fas', 'toggle-on'] : ['fas', 'toggle-off']" />
                     <span v-if="modulo.state === '1'" style="color: white"> Inactivar</span>
                     <span v-else style="color: white"> Activar</span>
@@ -97,11 +95,12 @@
       <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel"><font-awesome-icon :icon="['fas', 'chalkboard']" /> Modulo</h5>
+            <h5 class="modal-title" id="exampleModalLabel"><font-awesome-icon :icon="['fas', 'chalkboard']" /> Modulo
+            </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <h3>Informacion del Modulo</h3>
+            <h3>Informacion del Modulo {{ module.name }}</h3>
             <br>
             <div class="container-fluid">
               <!-- Primera fila: Código y Nombre -->
@@ -109,7 +108,7 @@
                 <div class="col-md-6">
                   <div class="row">
                     <div class="col-md-1">
-                      <font-awesome-icon :icon="['fas', 'code']" style="font-size: 25px;" class="text-info"/>
+                      <font-awesome-icon :icon="['fas', 'code']" style="font-size: 25px;" class="text-info" />
                     </div>
                     <div class="col-md-10">
                       <strong>Código:</strong> {{ module.code }}
@@ -119,10 +118,11 @@
                 <div class="col-md-6">
                   <div class="row">
                     <div class="col-md-1">
-                      <font-awesome-icon :icon="['fas', 'signature']" style="font-size: 25px;" class="text-warning"/>
+                      <font-awesome-icon :icon="['fas', 'image']" style="font-size: 25px;" class="text-secondary" />
                     </div>
                     <div class="col-md-10">
-                      <strong>Nombre:</strong> {{ module.name }}
+                      <strong>Imagen: </strong> <a target="_blank" :href="'http://localhost:5000/' + module.image">
+                        Ver</a>
                     </div>
                   </div>
                 </div>
@@ -132,27 +132,31 @@
                 <div class="col-md-6">
                   <div class="row">
                     <div class="col-md-1">
-                      <font-awesome-icon :icon="['fas', 'image']"  style="font-size: 25px;" class="text-secondary"/>
+                      <font-awesome-icon :icon="['fas', 'signature']" style="font-size: 25px;" class="text-warning" />
                     </div>
                     <div class="col-md-10">
-                      <strong>Imagen: </strong> <a target="_blank" :href="'http://localhost:5000/' + module.image">
-                        Ver</a>
+                      <strong>Descripción:</strong> {{ module.description }}
                     </div>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="row">
                     <div class="col-md-1">
-                      <font-awesome-icon :icon="['fas', 'toggle-on']" style="font-size: 25px;" :class="module.state === '1' ? 'text-success' : 'text-danger'"/>
+                      <font-awesome-icon :icon="['fas', 'list']" style="font-size: 25px;" class="text-success" />
                     </div>
                     <div class="col-md-10">
-                      <strong>Estado:</strong> {{ module.state === '1' ? 'Activo' : 'Inactivo' }}
+                      <p><strong>Documentos:</strong></p>
+                      <p v-for="(document, index) in module.documents" :key="document._id">
+                        <font-awesome-icon :icon="['fas', 'file']" style="font-size: 20px;" class="text-secondary"/>&nbsp;&nbsp;  
+                        <a :href="'http://localhost:5000/' + document.route" target="_blank">
+                          {{ document.name }}
+                        </a>
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <br>
             <h3>Lecciones</h3>
             <br>
             <div class="table-responsive">
@@ -169,7 +173,8 @@
                     <td>{{ lesson.code }}</td>
                     <td>{{ lesson.name }}</td>
                     <td> <span v-if="lesson.state === '1'">Activo</span>
-                         <span v-else="lesson.state === '0'">Inactivo</span></td>
+                      <span v-else="lesson.state === '0'">Inactivo</span>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -248,7 +253,7 @@ export default {
     };
 
     const openModal = (modulo) => {
-      lessons.value = JSON.parse(modulo.lessons); // Asigna las lecciones del módulo al ref lecciones
+      lessons.value = modulo.lessons; // Asigna las lecciones del módulo al ref lecciones
       module.value = modulo;
       console.log("Lecciones -------->", lessons, module);
     };
@@ -258,10 +263,10 @@ export default {
       // Mostrar mensaje de confirmación antes de editar el state
       if (window.confirm('¿Estás seguro de que deseas cambiar el state del modulo?')) {
         const newEstado = state === '0' ? '1' : '0';
-        //await updateEstadoModulo(id, newEstado);
+        let resultado = await axios.patch(`http://localhost:5000/modules/${id}/state`, { state: newEstado });
         console.log('Estado del modulo actualizado correctamente');
         // Recargar los modulo después de editar el state
-        // await cargarModulos();
+        await cargarModulos();
       }
     };
 

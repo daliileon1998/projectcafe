@@ -136,27 +136,43 @@ export default {
     };
 
     const guardarCurso = async () => {
-      console.log("props --------------->", props);
-      const formData = new FormData(); // Crear un objeto FormData
-
-      // Asignar los valores al FormData
-      formData.append('code', codigo.value);
-      formData.append('name', nombre.value);
-      formData.append('description', descripcion.value);
-      formData.append('state', state.value);
-
-      // Verificar si se ha seleccionado una imagen
-      if (imagen && imagen.value) {
-        console.log("holaaaaa", imagen.value);
-        formData.append('image', imagen.value); // Agregar el archivo de imagen al FormData
-      } else {
-        formData.append('image', ''); // Asignar el atributo image como "" si no se ha seleccionado una imagen
-      }
-
-      console.log(formData);
-
       try {
-        if (props.id !== null && props.id != '') {
+        const formData = new FormData(); // Crear un objeto FormData
+
+        // Asignar los valores al FormData
+        formData.append('code', codigo.value);
+        formData.append('name', nombre.value);
+        formData.append('description', descripcion.value);
+        formData.append('state', state.value);
+
+        // Verificar si se ha seleccionado una imagen
+        if (imagen && imagen.value) {
+          formData.append('image', imagen.value); // Agregar el archivo de imagen al FormData
+        } else {
+          formData.append('image', ''); // Asignar el atributo image como "" si no se ha seleccionado una imagen
+        }
+
+        // Determinar si es una solicitud de creación o actualización
+        const url = props.id ? `http://localhost:5000/courses/${props.id}` : 'http://localhost:5000/courses';
+
+        const response = await axios({
+          method: props.id ? 'put' : 'post',
+          url: url,
+          data: formData,
+          headers: {
+            'Content-Type': 'multipart/form-data' // Especificar el tipo de contenido como 'multipart/form-data'
+          }
+        });
+
+        if (response.status === 200) {
+          alert(props.id ? 'Curso actualizado correctamente' : 'Curso creado correctamente');
+          // Redirigir a la página de módulos después de guardar/actualizar
+           router.push('/cursos');
+        } else {
+          throw new Error('Error al guardar el curso');
+        }
+
+        /*if (props.id !== null && props.id != '') {
           // Si hay un ID, actualiza el documento existente
           console.log(formData);
           await axios.put(`http://localhost:5000/courses/${props.id}`, formData, {
@@ -174,8 +190,7 @@ export default {
             }
           });
           alert('Curso creado correctamente'); // Utiliza console.log para mostrar el mensaje de éxito
-        }
-        router.push('/cursos');
+        }*/
       } catch (error) {
         console.log('Error al guardar el curso:', error);
       }

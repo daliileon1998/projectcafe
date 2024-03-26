@@ -48,7 +48,7 @@
                   <router-link :to="{ name: 'AddCursos', params: { id: curso._id } }" class="btn btn-warning">
                     <font-awesome-icon :icon="['fas', 'pen-to-square']" size="xl"/>
                   </router-link>
-                  <button :class="['btn',curso.state === '0' ? 'btn-success' : 'btn-danger']" @click="editarEstado(curso._id,curso.state)">
+                  <button :class="['btn',curso.state === '0' ? 'btn-success' : 'btn-secondary']" @click="editarEstado(curso._id,curso.state)">
                     <font-awesome-icon :icon="curso.estado === '0' ? ['fas', 'toggle-on'] : ['fas', 'toggle-off']" />
                     <span v-if="curso.state === '1'" style="color: white"> Inactivar</span>
                     <span v-else style="color: white"> Activar</span>
