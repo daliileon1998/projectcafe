@@ -1,16 +1,28 @@
 <template>
-    <footer class="footer mt-auto py-3 bg-light">
-      <div class="container">
-        <span class="text-muted">Este es el pie de página de tu aplicación.</span>
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <p>© 2024 Project Café. Todos los derechos reservados.</p>
+        </div>
       </div>
-    </footer>
-  </template>
-  
-  <script setup>
-  // Puedes importar cualquier cosa que necesites aquí
-  </script>
-  
-  <style scoped>
-  /* Estilos específicos del componente Footer */
-  </style>
-  
+    </div>
+  </footer>
+
+</template>
+
+<script setup>
+</script>
+
+<style scoped>
+footer {
+  background-color: #a46c44;
+  color: #fff;
+  padding: 20px 0;
+  text-align: center;
+}
+
+footer p {
+  margin: 0;
+}
+</style>

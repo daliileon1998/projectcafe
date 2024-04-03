@@ -5,11 +5,12 @@
     <div class="row">
       <div class="col-md-6">
         <h2>Información de Contacto</h2>
-        <p>¡Estamos aquí para ayudarte! Ponte en contacto con nosotros para cualquier consulta o pregunta que tengas sobre nuestros cursos y servicios.</p>
+        <p>¡Estamos aquí para ayudarte! Ponte en contacto con nosotros para cualquier consulta o pregunta que tengas
+          sobre nuestros cursos y servicios.</p>
         <ul>
-          <li><strong>Teléfono:</strong> +57 123 456 789</li>
+          <li><strong>Teléfono:</strong> +57 313 3457896</li>
           <li><strong>Correo electrónico:</strong> info@proyectocafe.com</li>
-          <li><strong>Dirección:</strong> Calle 123, Ciudad, País</li>
+          <li><strong>Dirección:</strong> Av. Los Estudiantes #9-82, Bucaramanga, Colombia</li>
         </ul>
       </div>
       <div class="col-md-6">
@@ -35,6 +36,9 @@
 </template>
 
 <script>
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
 export default {
   name: 'Contact',
   data() {
@@ -50,20 +54,28 @@ export default {
     submitForm() {
       // Aquí puedes implementar la lógica para enviar el formulario
       console.log('Formulario enviado:', this.formData);
-      // Aquí puedes agregar la lógica para enviar los datos del formulario a tu servidor
       // Por ejemplo, puedes hacer una solicitud HTTP POST utilizando axios
-      // axios.post('/api/contact', this.formData)
-      //   .then(response => {
-      //     console.log('Respuesta del servidor:', response.data);
-      //   })
-      //   .catch(error => {
-      //     console.error('Error al enviar el formulario:', error);
-      //   });
+      axios.post('http://localhost:5000/email/contact', this.formData)
+        .then(response => {
+          Swal.fire({
+            icon: 'success',
+            title: response.data.message,
+            timer: 1500
+          });
+          // Limpiar los campos del formulario
+          this.formData.name = '';
+          this.formData.email = '';
+          this.formData.message = '';
+        })
+        .catch(error => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error
+          });
+          //console.error('Error al enviar el formulario:', error);
+        });
     }
   }
 };
 </script>
-
-<style scoped>
-/* Estilos específicos del componente Contact */
-</style>

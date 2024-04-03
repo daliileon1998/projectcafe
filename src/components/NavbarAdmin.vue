@@ -3,32 +3,38 @@
 
     <!-- Sidebar -->
     <div class="bg-light border-right" id="sidebar-wrapper">
-      <div class="sidebar-heading"><router-link class="navbar-brand mb-3" to="/">
+      <div class="sidebar-heading"><router-link class="navbar-brand mb-3" to="/admin">
           <img src="../../public/icono.ico" alt="Logo" width="50" height="50">&nbsp;&nbsp;Project Café
         </router-link> </div>
       <div class="list-group list-group-flush">
         <li class="nav-item list-group-item list-group-item-action bg-light">
-            <router-link class="nav-link" to="/admin">
-              <font-awesome-icon :icon="['fas', 'house']" size="xl" />
-              <span class="ms-2 d-none d-md-inline">Inicio</span>
-            </router-link>
-          </li>
-          <li class="nav-item list-group-item list-group-item-action bg-light">
+          <router-link class="nav-link" to="/admin">
+            <font-awesome-icon :icon="['fas', 'house']" size="xl" />
+            <span class="ms-2 d-md-inline">Inicio</span>
+          </router-link>
+        </li>
+        <li class="nav-item list-group-item list-group-item-action bg-light">
             <router-link class="nav-link" to="/cursos">
               <font-awesome-icon :icon="['fas', 'certificate']" size="xl" />
-              <span class="ms-2 d-none d-md-inline">Cursos</span>
+              <span class="ms-2 d-md-inline">Cursos</span>
             </router-link>
           </li>
           <li class="nav-item list-group-item list-group-item-action bg-light">
             <router-link class="nav-link" to="/modulos">
               <font-awesome-icon :icon="['fas', 'book']" size="xl" />
-              <span class="ms-2 d-none d-md-inline">Módulo</span>
+              <span class="ms-2 d-md-inline">Módulo</span>
+            </router-link>
+          </li>
+          <li class="nav-item list-group-item list-group-item-action bg-light">
+            <router-link class="nav-link" to="/users">
+              <font-awesome-icon :icon="['fas', 'user']" size="xl" />
+              <span class="ms-2 d-md-inline">Usuario</span>
             </router-link>
           </li>
           <li class="nav-item list-group-item list-group-item-action bg-light">
             <a class="nav-link" href="#" @click="confirmLogout">
               <font-awesome-icon :icon="['fas', 'arrow-right-from-bracket']" size="xl" />
-              <span class="ms-2 d-none d-md-inline">Salir</span>
+              <span class="ms-2 d-md-inline">Salir</span>
             </a>
           </li>
       </div>
@@ -38,10 +44,12 @@
     <!-- Page Content -->
     <div id="page-content-wrapper">
 
-      <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-        <button class="btn btn-primary" id="menu-toggle"><font-awesome-icon :icon="['fas', 'bars']" /></button>
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <button class="btn btn-primary" id="menu-toggle" @click="toggleSidebar">
+          <font-awesome-icon :icon="['fas', 'bars']" />
+        </button>
       </nav>
-
+      
       <div class="container-fluid">
         <router-view></router-view>
       </div>
@@ -53,39 +61,75 @@
 </template>
 
 <script>
-import { logout } from '@/firebase'; // Importa la función para cerrar sesión desde tu archivo firebase.js
-import { useRouter } from 'vue-router'; // Importar el enrutador de Vue Router
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2'; 
 
 export default {
   setup() {
-    const router = useRouter(); // Obtiene el enrutador
-    const confirmLogout = (event) => {
-      event.preventDefault(); // Prevenir el comportamiento predeterminado del evento de clic
+    const router = useRouter(); 
+    const isSidebarOpen = ref(false); 
+    const sessionClosed = ref(false);
 
-      if (confirm('¿Estás seguro de cerrar sesión?')) {
-        logout(); // Llama a la función para cerrar sesión
-        router.push('/home'); // Redirige al usuario a la página de inicio
-        console.log('Sesión cerrada');
+    // Función para cerrar sesión
+    const logout = () => {
+      // Eliminar el token del almacenamiento local
+      localStorage.removeItem('token');
+    };
+
+    // Confirmar el cierre de sesión y redirigir
+    const confirmLogout = (event) => {
+      event.preventDefault(); 
+      Swal.fire({
+        title: '¿Estás seguro de cerrar sesión?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          logout(); // Cerrar sesión
+          sessionClosed.value = true;
+          location.reload();
+        }
+      });
+    };
+
+    // Función para alternar la visibilidad de la barra lateral
+    const toggleSidebar = () => {
+      isSidebarOpen.value = !isSidebarOpen.value;
+      const wrapper = document.getElementById('wrapper');
+      if (isSidebarOpen.value) {
+        wrapper.classList.add('toggled');
+      } else {
+        wrapper.classList.remove('toggled');
       }
     };
 
-    return {
-      confirmLogout // Retorna la función confirmLogout
-    };
-  },
-  mounted() {
-    document.getElementById('menu-toggle').addEventListener('click', this.toggleSidebar);
-  },
-  methods: {
-    toggleSidebar() {
-      document.getElementById('wrapper').classList.toggle('toggled');
+    if (sessionClosed.value) { // Si se cerró la sesión, ejecutar la función de carga
+      window.addEventListener('load', () => {
+        // Redirigir al usuario al view de admin
+        router.push('/home');
+        // Mostrar mensaje de éxito
+        Swal.fire({
+          icon: 'success',
+          title: 'Sesión cerrada exitosamente',
+          timer: 1500
+        });
+      });
     }
+
+    return {
+      isSidebarOpen,
+      confirmLogout,
+      toggleSidebar
+    };
   }
 }
 </script>
 
+
 <style>
-/* Estilos personalizados para el sidebar */
 body {
   overflow-x: hidden;
 }
@@ -93,12 +137,12 @@ body {
 #sidebar-wrapper {
   min-height: 100vh;
   margin-left: -15rem;
-  transition: margin .25s ease-out;
+  transition: margin .25s ease-out; 
 }
 
 #sidebar-wrapper .sidebar-heading {
   padding: 0.875rem 1.25rem;
-  font-size: 1.2rem;
+  font-size: 1.5rem; /* Aumentar el tamaño del texto del encabezado */
 }
 
 #sidebar-wrapper .list-group {
@@ -106,15 +150,16 @@ body {
 }
 
 #sidebar-wrapper .list-group-item {
-  margin-bottom: 20px; /* Ajusta el valor según tu preferencia */
+  margin-bottom: 20px; 
+  font-size: 1.1rem; /* Aumentar el tamaño del texto de los enlaces */
 }
 
 #page-content-wrapper {
   min-width: 100vw;
 }
 
-#wrapper.toggled #sidebar-wrapper {
-  margin-left: 0;
+.toggled #sidebar-wrapper {
+  margin-left: 0; 
 }
 
 @media (min-width: 768px) {
@@ -127,8 +172,8 @@ body {
     width: 100%;
   }
 
-  #wrapper.toggled #sidebar-wrapper {
-    margin-left: -15rem;
+  .toggled #sidebar-wrapper {
+    margin-left: -15rem; 
   }
 }
 
@@ -136,4 +181,7 @@ body {
   background-color: lightyellow !important;
 }
 
+#menu-toggle {
+  margin-top: 1rem; /* Ajustar el espacio entre el botón de menú y la barra de navegación */
+}
 </style>
