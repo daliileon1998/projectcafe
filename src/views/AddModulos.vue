@@ -11,14 +11,16 @@
                     <!-- Contenedor del campo Código -->
                     <div class="mb-3">
                         <label for="codigo" class="form-label">Código</label>
-                        <input type="text" class="form-control" id="codigo" v-model="codigo" required>
+                        <input type="text" class="form-control" id="codigo" v-model="codigo"
+                            :class="campoFaltanteClass2(codigo)" required>
                     </div>
                 </div>
                 <div class="col-lg-6">
                     <!-- Contenedor del campo Nombre -->
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" v-model="nombre" required>
+                        <input type="text" class="form-control" id="nombre" v-model="nombre"
+                            :class="campoFaltanteClass2(nombre)" required>
                     </div>
                 </div>
             </div>
@@ -37,7 +39,8 @@
                     <!-- Contenedor del campo Estado -->
                     <div class="mb-3">
                         <label for="estado" class="form-label">Estado</label>
-                        <select class="form-control" id="estado" v-model="estado" required>
+                        <select class="form-control" id="estado" v-model="estado" :class="campoFaltanteClass2(estado)"
+                            required>
                             <option value="">Seleccionar</option>
                             <option value="1">Activo</option>
                             <option value="0">Inactivo</option>
@@ -52,7 +55,8 @@
                     <!-- Contenedor del campo Imagen -->
                     <div class="mb-3">
                         <label for="curso" class="form-label">Curso</label>
-                        <select class="form-control" id="curso" v-model="curso" required>
+                        <select class="form-control" id="curso" v-model="curso" :class="campoFaltanteClass2(curso)"
+                            required>
                             <option value="">Seleccionar</option>
                             <option v-for="(course, index) in activeCourses" :value="course._id" :key="index">{{
                             course.name }}
@@ -79,16 +83,17 @@
                             ref="documentoInput" @change="onDocumentoChange">
                     </div>
                     <ul>
-            <li v-for="(document, index) in documents" :key="index">
-                <a :href="'http://localhost:5000/' + document.route" target="_blank">{{ document.name }}</a>
-            </li>
-        </ul>
+                        <li v-for="(document, index) in documents" :key="index">
+                            <a :href="'http://localhost:5000/' + document.route" target="_blank">{{ document.name }}</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </form>
     </div>
 
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Añadir
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
+        @show.bs.modal="resetGuardarClicado">Añadir
         Leccion</button>
 
     <div class="row mt-3">
@@ -155,14 +160,16 @@
                                     <!-- Contenedor del campo Código -->
                                     <div class="mb-3">
                                         <label for="codigo" class="form-label">Código</label>
-                                        <input type="text" class="form-control" id="codigoL" v-model="codigoL" required>
+                                        <input type="text" class="form-control" id="codigoL" v-model="codigoL"
+                                            :class="campoFaltanteClass(codigoL)" required>
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <!-- Contenedor del campo Nombre -->
                                     <div class="mb-3">
                                         <label for="nombre" class="form-label">Nombre</label>
-                                        <input type="text" class="form-control" id="nombreL" v-model="nombreL" required>
+                                        <input type="text" class="form-control" id="nombreL" v-model="nombreL"
+                                            :class="campoFaltanteClass(nombreL)" required>
                                     </div>
                                 </div>
                             </div>
@@ -173,7 +180,8 @@
                                     <!-- Contenedor del campo Estado -->
                                     <div class="mb-3">
                                         <label for="estado" class="form-label">Estado</label>
-                                        <select class="form-control" id="estadoL" v-model="estadoL" required>
+                                        <select class="form-control" id="estadoL" v-model="estadoL"
+                                            :class="campoFaltanteClass(estadoL)" required>
                                             <option value="">Seleccionar</option>
                                             <option value="1">Activo</option>
                                             <option value="0">Inactivo</option>
@@ -182,11 +190,12 @@
                                 </div>
                             </div>
 
-                            <!-- Imagen -->
+                            <!-- Contenido -->
                             <div class="row">
                                 <div class="col-lg-12">
-                                    <label>Editor</label>
-                                    <ckeditor :editor="editor" v-model="contenidoL" :config="config"></ckeditor>
+                                    <label>Contenido</label>
+                                    <ckeditor :editor="editor" v-model="contenidoL"
+                                        :class="campoFaltanteClass(contenidoL)" :config="config"></ckeditor>
                                 </div>
                             </div>
                         </form>
@@ -213,6 +222,7 @@
             </button>
         </div>
     </div>
+    <br><br>
 
 </template>
 
@@ -224,6 +234,7 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import CKEditor from '@ckeditor/ckeditor5-vue';
+import Swal from 'sweetalert2';
 
 export default {
     name: 'AddModulos',
@@ -241,11 +252,11 @@ export default {
         const codigo = ref('');
         const nombre = ref('');
         const descripcion = ref('');
-        const estado = ref('activo');
+        const estado = ref('');
         const imagen = ref('');
         const codigoL = ref('');
         const nombreL = ref('');
-        const estadoL = ref('activo');
+        const estadoL = ref('');
         const idLesson = ref('');
         const contenidoL = ref('');
         const lecciones = ref([]); // Array para almacenar las lecciones
@@ -253,6 +264,8 @@ export default {
         const curso = ref('');
         const documents = ref([]);
         const documentoInput = ref([]);
+        const guardarClicado = ref(false);
+        const guardarClicado2 = ref(false);
 
 
         const editor = ClassicEditor
@@ -283,14 +296,13 @@ export default {
                     imagen.value = moduleDoc.image || '';
                     documents.value = moduleDoc.documents || '';
                     const cursoSeleccionado = activeCourses.value.find(course => course._id === moduleDoc.course.id);
+
                     if (cursoSeleccionado) {
-                        // Asignar el curso seleccionado
                         curso.value = cursoSeleccionado._id || '';
                     } else {
                         console.error("No se pudo encontrar el curso correspondiente.");
                     }
                     imagen.value = moduleDoc.image || '';
-                    // Asignar otros campos según sea necesario
                 } else {
                     console.log("No existe ningún modulo con el ID proporcionado");
                 }
@@ -308,13 +320,11 @@ export default {
                 contenidoL.value = lession.content || '';
                 idLesson.value = index;
             }
-            console.log(index);
         };
 
         const onFileChange = (event) => {
             const file = event.target.files[0];
             imagen.value = file;
-            // Aquí puedes manejar la carga de la imagen si es necesario
         };
 
 
@@ -350,6 +360,17 @@ export default {
         };
 
         const guardarLeccion = async () => {
+            guardarClicado.value = true;
+            if (!codigoL.value || !nombreL.value || !estadoL.value || !contenidoL.value) {
+                // Mostrar un mensaje de error si algún campo obligatorio está vacío
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Por favor, completa todos los campos obligatorios.'
+                });
+                return; // Detener el proceso de guardar la lección si falta algún campo obligatorio
+            }
+
             const leccionData = {
                 code: codigoL.value,
                 name: nombreL.value,
@@ -371,6 +392,25 @@ export default {
                 console.error('Error al guardar la lección:', error);
             }
         };
+
+        const resetGuardarClicado = () => {
+            guardarClicado.value = false;
+        };
+
+        const campoFaltanteClass = (campo) => {
+            const campoVacio = !campo || (typeof campo === 'string' && campo.trim() === '');
+            return {
+                'campo-faltante': guardarClicado.value && campoVacio
+            };
+        };
+
+        const campoFaltanteClass2 = (campo) => {
+            const campoVacio = !campo || (typeof campo === 'string' && campo.trim() === '');
+            return {
+                'campo-faltante': guardarClicado2.value && campoVacio
+            };
+        };
+
 
         // Método para cambiar el state del modulo
         const editarEstado = async (id, state) => {
@@ -395,6 +435,23 @@ export default {
 
         const guardarModulo = async () => {
             try {
+                guardarClicado2.value = true;
+                if (!codigo.value || !nombre.value || !estado.value || !curso.value) {
+                    // Mostrar un mensaje de error si algún campo obligatorio está vacío
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Por favor, completa todos los campos obligatorios.'
+                    });
+                    return; // Detener el proceso de guardar la lección si falta algún campo obligatorio
+                } else if (lecciones.value.length == 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Por favor, Agrega las lecciones correspondientes al modulo.'
+                    });
+                    return;
+                }
                 let data = new FormData();
                 const cursoSeleccionado = activeCourses.value.find(c => c._id === curso.value);
 
@@ -411,7 +468,6 @@ export default {
 
                 // Agregar lecciones al FormData
                 agregarLecciones(data, lecciones.value);
-                console.log("documents ------->", documents.length, documents.value.length);
                 // Verificar si se han seleccionado documentos y agregarlos al FormData
                 if (documents.value.length > 0) {
                     for (let i = 0; i < documents.value.length; i++) {
@@ -429,7 +485,6 @@ export default {
                 // Determinar si es una solicitud de creación o actualización
                 const url = props.id ? `http://localhost:5000/modules/${props.id}` : 'http://localhost:5000/modules';
 
-                console.log("imagen y documents --------->",imagen,documents);
                 // Enviar la solicitud HTTP utilizando Axios
                 const response = await axios({
                     method: props.id ? 'put' : 'post',
@@ -442,29 +497,36 @@ export default {
 
                 // Manejar la respuesta
                 if (response.status === 200) {
-                    alert(props.id ? 'Módulo actualizado correctamente' : 'Módulo creado correctamente');
-                    // Redirigir a la página de módulos después de guardar/actualizar
+                    Swal.fire({
+                        icon: 'success',
+                        title: props.id ? 'Módulo actualizado correctamente' : 'Módulo creado correctamente',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
                     router.push('/modulos');
                 } else {
                     throw new Error('Error al guardar el módulo');
                 }
             } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un problema al guardar el módulo. Por favor, inténtalo de nuevo más tarde.'
+                });
                 console.error('Error al guardar el módulo:', error);
-                alert('Error al guardar el módulo');
             }
         };
 
         onMounted(() => {
-            // Cargar la lección si se proporciona un ID
-            if (props.id !== null) {
-                cargarModulo(props.id);
-            }
-            axios.get('http://localhost:5000/courses')
+            axios.get('http://localhost:5000/courses/activos')
                 .then(response => {
                     // Filtrar los cursos activos
                     console.log(response.data.Courses);
-                    console.log(typeof response.data);
-                    activeCourses.value = response.data.Courses.filter(course => course.state === '1');
+                    //console.log(typeof response.data);
+                    activeCourses.value = response.data.Courses;
+                    if (props.id !== null) {
+                        cargarModulo(props.id);
+                    }
 
                 })
                 .catch(error => {
@@ -473,7 +535,7 @@ export default {
 
         });
 
-        return { codigo, nombre, descripcion, estado, imagen, codigoL, nombreL, estadoL, contenidoL, config, lecciones, idLesson, activeCourses, curso, documentoInput, documents, editor, onFileChange, cancelar, guardarLeccion, eliminarLeccion, openModal, editarEstado, guardarModulo, onDocumentoChange };
+        return { codigo, nombre, descripcion, estado, imagen, codigoL, nombreL, estadoL, contenidoL, config, lecciones, idLesson, activeCourses, curso, documentoInput, documents, editor, onFileChange, cancelar, guardarLeccion, eliminarLeccion, openModal, editarEstado, guardarModulo, onDocumentoChange, guardarClicado, campoFaltanteClass, guardarClicado2, campoFaltanteClass2, resetGuardarClicado };
     }
 };
 </script>
@@ -481,5 +543,9 @@ export default {
 <style scoped>
 .center {
     text-align: center;
+}
+
+.campo-faltante {
+    border-color: red !important;
 }
 </style>

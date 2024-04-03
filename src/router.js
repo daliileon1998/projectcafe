@@ -8,11 +8,11 @@ import AddCursos from './views/AddCursos.vue';
 import Admin from './views/Admin.vue';
 import CursosUsers from './views/CursosUsers.vue';
 import ModuloUsers from './views/ModuloUsers.vue';
+import ModuloUsersCont from './views/ModuloUsersCont.vue';
 import Modulos from './views/Modulos.vue';
 import AddModulos from './views/AddModulos.vue';
 import Users from './views/Users.vue';
 import AddUsers from './views/AddUsers.vue';
-import { auth } from '@/firebase';
 
 const routes = [
   {
@@ -36,14 +36,23 @@ const routes = [
     component: Login
   },
   {
-    path: '/CursosUsers',
+    path: '/CursosUsers/:id?',
     name: 'CursosUsers',
+    props: true,
     component: CursosUsers
   },
   {
-    path: '/ModuloUsers',
+    path: '/ModuloUsers/:id',
     name: 'ModuloUsers',
+    props: true,
     component: ModuloUsers
+  },
+
+  {
+    path: '/DocumentsModules/:id',
+    name: 'DocumentsModules',
+    props: true,
+    component: ModuloUsersCont
   },
   // PANTALLA ADMIN
   {
@@ -102,11 +111,13 @@ const router = createRouter({
 // Guarda de navegación para verificar la autenticación del usuario antes de acceder a la ruta protegida
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth); // Verifica si la ruta requiere autenticación
-  const isAuthenticated = auth.currentUser !== null; // Verifica si el usuario está autenticado
-  
-  if (!isAuthenticated) {
-    next();
-  }  else if (to.path === '/' && isAuthenticated) {
+  const token = localStorage.getItem('token');
+console.log("routes ------>",requiresAuth ,token,(requiresAuth && !token));
+  // Verifica si la ruta requiere autenticación y si el usuario está autenticado
+  if (requiresAuth && !token) {
+    // Si la ruta requiere autenticación pero el usuario no está autenticado, redirige a la página de inicio de sesión
+    next('/login');
+  }else if (to.path === '/' && token) {
     // Si el usuario está autenticado y trata de acceder a la página de inicio, redirige a la página de administrador
     next('/admin');
   } else {
@@ -114,5 +125,6 @@ router.beforeEach((to, from, next) => {
     next();
   }
 });
+
 
 export default router;

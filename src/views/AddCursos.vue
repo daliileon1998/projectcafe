@@ -11,14 +11,16 @@
           <!-- Contenedor del campo Código -->
           <div class="mb-3">
             <label for="codigo" class="form-label">Código</label>
-            <input type="text" class="form-control" id="codigo" v-model="codigo" required>
+            <input type="text" class="form-control" id="codigo" v-model="codigo" :class="campoFaltanteClass(codigo)"
+              required>
           </div>
         </div>
         <div class="col-lg-6">
           <!-- Contenedor del campo Nombre -->
           <div class="mb-3">
             <label for="nombre" class="form-label">Nombre</label>
-            <input type="text" class="form-control" id="nombre" v-model="nombre" required>
+            <input type="text" class="form-control" id="nombre" v-model="nombre" :class="campoFaltanteClass(nombre)"
+              required>
           </div>
         </div>
       </div>
@@ -36,7 +38,7 @@
           <!-- Contenedor del campo Estado -->
           <div class="mb-3">
             <label for="estado" class="form-label">Estado</label>
-            <select class="form-control" id="state" v-model="state" required>
+            <select class="form-control" id="state" v-model="state" :class="campoFaltanteClass(state)" required>
               <option value="">Seleccionar</option>
               <option value="1">Activo</option>
               <option value="0">Inactivo</option>
@@ -51,7 +53,8 @@
           <!-- Contenedor del campo Imagen -->
           <div class="mb-3">
             <label for="imagen" class="form-label">Imagen</label>
-            <input type="file" class="form-control" id="imagen" accept="image/*" @change="onFileChange" required>
+            <input type="file" class="form-control" id="imagen" accept="image/*" @change="onFileChange"
+              :class="campoFaltanteClass(imagen)" required>
           </div>
           <p v-if="imagen"><a :href="'http://localhost:5000/' + imagen" target="_blank">Imagen</a></p>
         </div>
@@ -77,7 +80,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-//import { getCursosFromFirebaseId,guardarCursosFromFirebase,updateCursoEnFirebase} from '@/firebase';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'AddCursos',
@@ -93,7 +96,8 @@ export default {
     const nombre = ref('');
     const descripcion = ref('');
     const imagen = ref('');
-    const state = ref('activo');
+    const state = ref('');
+    const guardarClicado = ref(false);
 
     const onFileChange = (event) => {
       const file = event.target.files[0];
@@ -138,7 +142,16 @@ export default {
     const guardarCurso = async () => {
       try {
         const formData = new FormData(); // Crear un objeto FormData
-
+        guardarClicado.value = true;
+        if (!codigo.value || !nombre.value || !state.value || !imagen.value) {
+          // Mostrar un mensaje de error si algún campo obligatorio está vacío
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Por favor, completa todos los campos obligatorios.'
+          });
+          return; // Detener el proceso de guardar la lección si falta algún campo obligatorio
+        }
         // Asignar los valores al FormData
         formData.append('code', codigo.value);
         formData.append('name', nombre.value);
@@ -165,35 +178,32 @@ export default {
         });
 
         if (response.status === 200) {
-          alert(props.id ? 'Curso actualizado correctamente' : 'Curso creado correctamente');
-          // Redirigir a la página de módulos después de guardar/actualizar
-           router.push('/cursos');
+          Swal.fire({
+            icon: 'success',
+            title: props.id ? 'Curso actualizado correctamente' : 'Curso creado correctamente',
+            showConfirmButton: false,
+            timer: 1500
+          });
+          router.push('/cursos');
         } else {
           throw new Error('Error al guardar el curso');
         }
-
-        /*if (props.id !== null && props.id != '') {
-          // Si hay un ID, actualiza el documento existente
-          console.log(formData);
-          await axios.put(`http://localhost:5000/courses/${props.id}`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data' // Especificar el tipo de contenido como 'multipart/form-data'
-            }
-          });
-          alert('Curso actualizado correctamente');
-        } else {
-          // Si no hay ID, crea un nuevo documento
-          console.log(formData);
-          await axios.post(`http://localhost:5000/courses`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data' // Especificar el tipo de contenido como 'multipart/form-data'
-            }
-          });
-          alert('Curso creado correctamente'); // Utiliza console.log para mostrar el mensaje de éxito
-        }*/
       } catch (error) {
-        console.log('Error al guardar el curso:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Hubo un problema al guardar el curso. Por favor, inténtalo de nuevo más tarde.'
+        });
+        console.error('Error al guardar el curso:', error);
       }
+    };
+
+    const campoFaltanteClass = (campo) => {
+      const campoVacio = !campo || (typeof campo === 'string' && campo.trim() === '');
+      console.log("campo vacío:", campoVacio); // Agrega este console.log para verificar
+      return {
+        'campo-faltante': guardarClicado.value && campoVacio
+      };
     };
 
 
@@ -211,9 +221,11 @@ export default {
       descripcion,
       imagen,
       state,
+      guardarClicado,
       onFileChange,
       cancelar,
-      guardarCurso
+      guardarCurso,
+      campoFaltanteClass
     };
   },
 
@@ -224,5 +236,9 @@ export default {
 <style scoped>
 .center {
   text-align: center;
+}
+
+.campo-faltante {
+  border-color: red !important;
 }
 </style>

@@ -90,6 +90,7 @@
 <script>
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'Users',
@@ -99,25 +100,24 @@ export default {
     const itemsPerPage = 10;
     const search = ref('');
 
-    const cargarCursos = async () => {
+    const cargarUsuarios = async () => {
       try {
         const response = await axios.get('http://localhost:5000/users');
         users.value = response.data.Usuarios;
-        console.log("users ------->", users);
       } catch (error) {
-        console.error('Error al obtener users desde Firebase:', error);
+        console.error('Error al obtener users:', error);
       }
     };
 
-    onMounted(cargarCursos);
+    onMounted(cargarUsuarios);
 
     // Filtro computado para aplicar búsqueda
     const filteredUsers = computed(() => {
-      if(Array.isArray(users.value) && users.value.length > 0){
+      if (Array.isArray(users.value) && users.value.length > 0) {
         return users.value.filter(user =>
-        user.name.toLowerCase().includes(search.value.toLowerCase())
-      );
-      }else{
+          user.name.toLowerCase().includes(search.value.toLowerCase())
+        );
+      } else {
         return [];
       }
     });
@@ -152,16 +152,25 @@ export default {
     // Método para cambiar el estado del user
     const editarEstado = async (id, estado) => {
       // Mostrar mensaje de confirmación antes de editar el estado
-      if (window.confirm('¿Estás seguro de que deseas cambiar el estado del user?')) {
-        const newEstado = estado === '0' ? '1' : '0';
-        console.log(id);
-        let resultado = await axios.patch(`http://localhost:5000/users/${id}/state`, { state: newEstado });
-        //await updateEstadoCurso(id, newEstado);
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Estás seguro de que deseas cambiar el estado del Usuario?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'Cancelar'
+      });
 
-        console.log("resultado ------->", resultado);
-        console.log('Estado del user actualizado correctamente');
-        // Recargar los users después de editar el estado
-        await cargarCursos();
+      if (result.isConfirmed) {
+        const newEstado = estado === '0' ? '1' : '0';
+        try {
+          await axios.patch(`http://localhost:5000/users/${id}/state`, { state: newEstado });
+          await cargarUsuarios();
+          Swal.fire('¡Hecho!', 'El estado del Usuario ha sido actualizado correctamente.', 'success');
+        } catch (error) {
+          console.error('Error al cambiar el estado del Usuario:', error);
+          Swal.fire('¡Error!', 'Hubo un error al cambiar el estado del Usuario.', 'error');
+        }
       }
     };
 

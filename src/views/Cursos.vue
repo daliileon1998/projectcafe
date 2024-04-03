@@ -87,7 +87,7 @@
 <script>
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
-//import { getCursosFromFirebase, updateEstadoCurso } from '@/firebase';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'Cursos',
@@ -97,15 +97,13 @@ export default {
     const itemsPerPage = 10;
     const search = ref('');
 
-    // Llama a getCursosFromFirebase cuando el componente se ha montado
     const cargarCursos = async () => {
       try {
-        //cursos.value = await getCursosFromFirebase();
         const response = await axios.get('http://localhost:5000/courses');
         cursos.value = response.data.Courses;
         console.log("cursos ------->",cursos);
       } catch (error) {
-        console.error('Error al obtener cursos desde Firebase:', error);
+        console.error('Error al obtener cursos:', error);
       }
     };
 
@@ -152,16 +150,25 @@ export default {
     // Método para cambiar el estado del curso
     const editarEstado = async (id, estado) => {
       // Mostrar mensaje de confirmación antes de editar el estado
-      if (window.confirm('¿Estás seguro de que deseas cambiar el estado del curso?')) {
-        const newEstado = estado === '0' ? '1' : '0';
-        console.log(id);
-        let resultado = await axios.patch(`http://localhost:5000/courses/${id}/state`, { state: newEstado });
-        //await updateEstadoCurso(id, newEstado);
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Estás seguro de que deseas cambiar el estado del curso?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'Cancelar'
+      });
 
-        console.log("resultado ------->",resultado);
-        console.log('Estado del curso actualizado correctamente');
-        // Recargar los cursos después de editar el estado
-        await cargarCursos();
+      if (result.isConfirmed) {
+        const newEstado = estado === '0' ? '1' : '0';
+        try {
+          await axios.patch(`http://localhost:5000/courses/${id}/state`, { state: newEstado });
+          await cargarCursos();
+          Swal.fire('¡Hecho!', 'El estado del curso ha sido actualizado correctamente.', 'success');
+        } catch (error) {
+          console.error('Error al cambiar el estado del curso:', error);
+          Swal.fire('¡Error!', 'Hubo un error al cambiar el estado del curso.', 'error');
+        }
       }
     };
 

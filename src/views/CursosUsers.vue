@@ -1,38 +1,43 @@
 <template>
   <div class="d-flex" id="wrapper">
     <!-- Page Content -->
-    <div id="page-content-wrapper" class="col-md-10">
-
+    <div id="page-content-wrapper" class="col-md-12">
       <div class="container-fluid">
-        <div class="row justify-content-center"> <!-- Alinear el contenido al centro horizontalmente -->
-          <div class="col-md-6 text-center"> <!-- Utilizar la mitad del ancho de la página para el texto -->
-            <h1 class="text-center" style="font-size:60px;margin-top: 15px;">Curso</h1>
+        <div class="row justify-content-center">
+          <div class="col-md-6 text-center">
+            <h1 class="text-center" style="font-size:60px;margin-top: 10px;">{{ cursoNombre }}</h1>
           </div>
         </div>
-        <div class="row mt-5">
+        <div class="row mt-2">
           <div class="col-md-2">
-            <h2 style="text-align: center;">Modulos Cursos</h2> <!-- Utilizar 3 columnas -->
-            <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3"> <!-- Añadir margen inferior -->
-              <div class="container-fluid">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                  <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                  <ul class="navbar-nav me-auto mb-2 mb-lg-0 d-flex flex-column" style="width: 100%;">
-                    <button class="nav-link btn btn-primary gold btn-lg mb-3 modulo-button text-white" aria-current="page"><router-link to="/ModuloUsers" style="color: #F5F5DC ; text-decoration: none;">Modulo 1</router-link></button>
-                    <button class="nav-link btn btn-primary gold btn-lg mb-3 modulo-button text-white"><router-link to="/ModuloUsers" style="color: #F5F5DC ; text-decoration: none;">Modulo 2</router-link></button>
-                    <button class="nav-link btn btn-primary gold btn-lg mb-3 modulo-button text-white">Modulo 3</button>
-                    <button class="nav-link btn btn-primary gold btn-lg mb-3 modulo-button text-white">Modulo 4</button>
-                  </ul>
-                </div>
-              </div>
+            <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3 rounded bordered-column">
+              <ul class="navbar-nav me-auto mb-2 mb-lg-0 d-flex flex-column navbar-nav-custom">
+                <!-- Aplicar estilo personalizado -->
+                <li class="nav-item">
+                  <h3 class="nav-link mb-2"><font-awesome-icon :icon="['fas', 'graduation-cap']" /> <b>Modulos
+                      Cursos</b></h3> <!-- Añadir espacio inferior -->
+                </li>
+                <li class="nav-item bordered-link" v-for="(modulo, index) in modulos" :key="index">
+                  <router-link :to="{ name: 'ModuloUsers', params: { id: modulo._id } }" class="nav-link">
+                    <font-awesome-icon :icon="['fas', 'folder']" /> {{ modulo.name
+                    }}</router-link>
+                </li>
+                <li class="nav-item bordered-link">
+                  <router-link :to="{ name: 'DocumentsModules', params: { id: id } }" class="nav-link">
+                    <font-awesome-icon :icon="['fas', 'folder']" /> Contenidos Adicionales
+                  </router-link>
+                </li>
+              </ul>
             </nav>
           </div>
-          <div class="col-md-8"> <!-- Utilizar 8 columnas -->
-            <div class="row justify-content-center align-items-center" style="height: 100%;"> <!-- Alinear el contenido al centro horizontalmente y verticalmente -->
-              <img src="https://www.tooltyp.com/wp-content/uploads/2014/10/1900x920-8-beneficios-de-usar-imagenes-en-nuestros-sitios-web.jpg" alt="Imagen" style="width: 100%; height: auto;"> <!-- Ajustar el tamaño de la imagen -->
-              <div style="text-align: center; padding: 20px;"> <!-- Centrar la descripción horizontalmente y agregar espacio alrededor del texto -->
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Soluta, deleniti, neque vitae iste iure culpa sapiente, adipisci corporis hic accusantium doloremque architecto porro voluptatum nulla reiciendis? Excepturi voluptatum deleniti necessitatibus eveniet, quasi blanditiis fugiat, veritatis reprehenderit officiis fugit, eos quam eum enim est! Labore possimus est ab, harum fugit dicta, nam eos, corporis cupiditate obcaecati quod unde? Quam, et? Possimus adipisci tempora, impedit laudantium cupiditate temporibus, maiores, eaque placeat blanditiis dignissimos distinctio. Nesciunt aspernatur totam voluptate dolores, voluptatum quos reiciendis autem. Ipsa temporibus sed architecto neque? Dolore, commodi quaerat. Illum vero, eum optio magni tenetur dolorum exercitationem voluptas. Rem, officiis.</p>
+          <div class="col-md-10">
+            <div class="d-flex flex-column justify-content-center align-items-left bordered-column"
+              style="height: 100%;margin-right: 20px;">
+              <br><br>
+              <img :src="'http://localhost:5000/' + cursoimage" alt="Imagen"
+                style="width:900px; height: 300px;margin: 0 auto; display: block;" class="bordered-image">
+              <div style="text-align: center; padding: 20px;">
+                <p>{{ cursoDescripcion }}</p>
               </div>
             </div>
           </div>
@@ -42,18 +47,77 @@
     </div>
     <!-- /#page-content-wrapper -->
   </div>
+  <br>
   <!-- /#wrapper -->
 </template>
 
-<style>
+<script>
+import axios from 'axios';
 
+export default {
+  name: 'Curso',
+  props: {
+    id: {
+      type: String,
+      default: null
+    }
+  },
+  data() {
+    return {
+      modulos: [], // Almacenar los módulos del curso
+      cursoNombre: '', // Variable para almacenar el nombre del curso
+      cursoDescripcion: '', // Variable para almacenar la descripción del curso
+      image: '',
+      selectedId: '', // Variable para almacenar el ID del módulo seleccionado
+      selectedIdcurso: '' // Variable para almacenar el ID del curso seleccionado
+    };
+  },
+  async mounted() {
+    if (this.id) {
+      await this.cargarCurso(this.id); // Cargar los datos del curso al montar el componente
+      await this.cargarModulos(this.id); // Cargar los módulos al montar el componente
+    }
+  },
+  methods: {
+    selectModule(id, idcurso) {
+      this.selectedId = id;
+      this.selectedIdcurso = idcurso;
+    },
+    async cargarCurso(id) {
+      try {
+        const response = await axios.get(`http://localhost:5000/courses/${id}`);
+        this.cursoNombre = response.data.name; // Asignar el nombre del curso a la variable cursoNombre
+        this.cursoDescripcion = response.data.description; // Asignar la descripción del curso a la variable cursoDescripcion
+        this.cursoimage = response.data.image;
+      } catch (error) {
+        console.error('Error al cargar el curso:', error);
+      }
+    },
+    async cargarModulos(id) {
+      try {
+        const response = await axios.get(`http://localhost:5000/modules/courses/${id}`); // Obtener los módulos del curso
+        this.modulos = response.data; // Asignar los módulos obtenidos a la variable modulos
+      } catch (error) {
+        console.error('Error al cargar los módulos:', error);
+      }
+    }
+  }
+};
+</script>
+
+<style scoped>
 .gold {
-  background-color: #efb810 !important; /* Código hexadecimal para el color dorado */
-  border-color: #FFD700 !important; /* Puedes ajustar el color del borde si es necesario */
+  background-color: #efb810 !important;
+  border-color: #FFD700 !important;
 }
 
 .modulo-button {
   font-size: 20px !important;
 }
 
+.bordered-image {
+  border: 1px solid #000;
+  /* Definir el borde de la imagen */
+  margin-left: 100px;
+}
 </style>

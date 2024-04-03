@@ -147,7 +147,8 @@
                     <div class="col-md-10">
                       <p><strong>Documentos:</strong></p>
                       <p v-for="(document, index) in module.documents" :key="document._id">
-                        <font-awesome-icon :icon="['fas', 'file']" style="font-size: 20px;" class="text-secondary"/>&nbsp;&nbsp;  
+                        <font-awesome-icon :icon="['fas', 'file']" style="font-size: 20px;"
+                          class="text-secondary" />&nbsp;&nbsp;
                         <a :href="'http://localhost:5000/' + document.route" target="_blank">
                           {{ document.name }}
                         </a>
@@ -193,7 +194,7 @@
 <script>
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
-//import { getModulosFromFirebase, updateEstadoModulo } from '@/firebase';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'Modulos',
@@ -205,14 +206,13 @@ export default {
     const itemsPerPage = 10;
     const search = ref('');
 
-    // Llama a getModulos FromFirebase cuando el componente se ha montado
     const cargarModulos = async () => {
       try {
         const response = await axios.get('http://localhost:5000/modules');
         modulos.value = await response.data.Modules;
         console.log("modulos -------->", modulos);
       } catch (error) {
-        console.error('Error al obtener modulos desde Firebase:', error);
+        console.error('Error al obtener modulos:', error);
       }
     };
 
@@ -220,11 +220,11 @@ export default {
 
     // Filtro computado para aplicar búsqueda
     const filteredModulos = computed(() => {
-      if(Array.isArray(modulos.value) && modulos.value.length > 0){
-      return modulos.value.filter(modulo =>
-        modulo.name.toLowerCase().includes(search.value.toLowerCase())
-      );
-      }else{
+      if (Array.isArray(modulos.value) && modulos.value.length > 0) {
+        return modulos.value.filter(modulo =>
+          modulo.name.toLowerCase().includes(search.value.toLowerCase())
+        );
+      } else {
         return [];
       }
     });
@@ -264,13 +264,27 @@ export default {
 
     // Método para cambiar el state del modulo
     const editarEstado = async (id, state) => {
-      // Mostrar mensaje de confirmación antes de editar el state
-      if (window.confirm('¿Estás seguro de que deseas cambiar el state del modulo?')) {
+
+      // Mostrar mensaje de confirmación antes de editar el estado
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Estás seguro de que deseas cambiar el estado del Modulo?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'Cancelar'
+      });
+
+      if (result.isConfirmed) {
         const newEstado = state === '0' ? '1' : '0';
-        let resultado = await axios.patch(`http://localhost:5000/modules/${id}/state`, { state: newEstado });
-        console.log('Estado del modulo actualizado correctamente');
-        // Recargar los modulo después de editar el state
-        await cargarModulos();
+        try {
+          await axios.patch(`http://localhost:5000/modules/${id}/state`, { state: newEstado });
+          await cargarModulos();
+          Swal.fire('¡Hecho!', 'El estado del Modulo ha sido actualizado correctamente.', 'success');
+        } catch (error) {
+          console.error('Error al cambiar el estado del modulo:', error);
+          Swal.fire('¡Error!', 'Hubo un error al cambiar el estado del modulo.', 'error');
+        }
       }
     };
 
