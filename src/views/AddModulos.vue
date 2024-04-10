@@ -432,13 +432,6 @@ export default {
         // Método para cambiar el state del modulo
         const editarEstado = async (id, state) => {
             // Mostrar mensaje de confirmación antes de editar el state
-            /*if (window.confirm('¿Estás seguro de que deseas cambiar el state del modulo?')) {
-                const newEstado = state === '0' ? '1' : '0';
-                lecciones.value[id]["state"] = newEstado;
-                console.log("lecciones ----------->", lecciones, newEstado, state);
-                // Recargar los modulo después de editar el state
-                // await cargarModulos();
-            }*/
             const result = await Swal.fire({
                 title: '¿Estás seguro?',
                 text: '¿Estás seguro de que deseas cambiar el estado de la leccion?',
