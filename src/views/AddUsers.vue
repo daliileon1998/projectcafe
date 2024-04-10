@@ -1,6 +1,7 @@
 <template>
   <div class="center">
-    <h1>Agregar Usuario</h1>
+    <h1 v-if="id > 0">Editar Usuario</h1>
+    <h1 v-else>Agregar Usuario</h1>
   </div>
   <div class="container mt-3">
     <form>
@@ -105,6 +106,7 @@ export default {
   },
   setup(props) {
     const router = useRouter();
+    const id = ref(props.id ? 1 : 0);
     const username = ref('');
     const name = ref('');
     const phone = ref('');
@@ -246,6 +248,7 @@ export default {
     });
 
     return {
+      id,
       username,
       name,
       phone,

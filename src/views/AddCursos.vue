@@ -1,6 +1,7 @@
 <template>
   <div class="center">
-    <h1>Agregar Curso</h1>
+    <h1 v-if="id > 0">Editar Curso</h1>
+    <h1 v-else>Agregar Curso</h1>
   </div>
   <div class="container mt-3">
     <form>
@@ -77,7 +78,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, defineProps } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -92,6 +93,7 @@ export default {
   },
   setup(props) {
     const router = useRouter(); // Instanciar el enrutador
+    const id = ref(props.id ? 1 : 0);
     const codigo = ref('');
     const nombre = ref('');
     const descripcion = ref('');
@@ -216,6 +218,7 @@ export default {
     });
 
     return {
+      id,
       codigo,
       nombre,
       descripcion,

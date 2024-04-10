@@ -1,6 +1,7 @@
 <template>
     <div class="center">
-        <h1>Agregar Modulos</h1>
+        <h1 v-if="id > 0">Editar Modulos</h1>
+        <h1 v-else>Agregar Modulos</h1>
     </div>
     <div class="container mt-3">
         <form>
@@ -59,7 +60,7 @@
                             required>
                             <option value="">Seleccionar</option>
                             <option v-for="(course, index) in activeCourses" :value="course._id" :key="index">{{
-                            course.name }}
+                                course.name }}
                             </option>
                         </select>
                     </div>
@@ -249,6 +250,7 @@ export default {
     },
     setup(props) {
         const router = useRouter();
+        const id = ref(props.id ? 1 : 0);
         const codigo = ref('');
         const nombre = ref('');
         const descripcion = ref('');
@@ -267,18 +269,30 @@ export default {
         const guardarClicado = ref(false);
         const guardarClicado2 = ref(false);
 
-
         const editor = ClassicEditor
         const config = {
             // Configuración del editor CKEditor
         }
 
-        const eliminarLeccion = (index) => {
+        const eliminarLeccion = async (index) => {
             // Mostrar mensaje de confirmación antes de eliminar la lección
-            if (window.confirm('¿Estás seguro de que deseas eliminar esta lección?')) {
-                // Eliminar la lección del array local
-                lecciones.value.splice(index, 1);
-                console.log(lecciones);
+            const result = await Swal.fire({
+                title: '¿Estás seguro?',
+                text: '¿Estás seguro de que deseas eliminar esta lección?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    lecciones.value.splice(index, 1);
+                    Swal.fire('¡Hecho!', 'El estado del curso ha sido actualizado correctamente.', 'success');
+                } catch (error) {
+                    console.error('Error al cambiar eliminar la leccion:', error);
+                    Swal.fire('¡Error!', 'Hubo un error al eliminar la leccion.', 'error');
+                }
             }
         };
 
@@ -327,7 +341,6 @@ export default {
             imagen.value = file;
         };
 
-
         const onDocumentoChange = () => {
             const files = documentoInput.value.files; // Obtener los archivos seleccionados
             // Iterar sobre los archivos y guardarlos en el atributo documents
@@ -353,13 +366,14 @@ export default {
         };
 
         const limpiarFormularioLeccion = () => {
+            idLesson.value = '';
             codigoL.value = '';
             nombreL.value = '';
             estadoL.value = 'activo'; // Reiniciar el estado a 'activo' al limpiar el formulario
             contenidoL.value = '';
         };
 
-        const guardarLeccion = async () => {
+        const guardarLeccion = function () {
             guardarClicado.value = true;
             if (!codigoL.value || !nombreL.value || !estadoL.value || !contenidoL.value) {
                 // Mostrar un mensaje de error si algún campo obligatorio está vacío
@@ -379,22 +393,25 @@ export default {
             };
             try {
                 // Agregar la lección al array local
-                console.log("idLesson ---------------->", idLesson, "-----------", (idLesson.value !== ""));
                 if (idLesson.value !== "") {
                     lecciones.value[idLesson.value] = leccionData;
                 } else {
                     lecciones.value.push(leccionData); // Utiliza lecciones.value para acceder al array
                 }
-                console.log("lecciones ----------->", lecciones);
                 // Limpiar el formulario después de guardar
                 limpiarFormularioLeccion();
+                guardarClicado.value = false;
+
             } catch (error) {
                 console.error('Error al guardar la lección:', error);
             }
-        };
+        }
 
         const resetGuardarClicado = () => {
             guardarClicado.value = false;
+            //LIMPIAR LOS CAMPOS
+            limpiarFormularioLeccion();
+
         };
 
         const campoFaltanteClass = (campo) => {
@@ -415,12 +432,31 @@ export default {
         // Método para cambiar el state del modulo
         const editarEstado = async (id, state) => {
             // Mostrar mensaje de confirmación antes de editar el state
-            if (window.confirm('¿Estás seguro de que deseas cambiar el state del modulo?')) {
+            /*if (window.confirm('¿Estás seguro de que deseas cambiar el state del modulo?')) {
                 const newEstado = state === '0' ? '1' : '0';
                 lecciones.value[id]["state"] = newEstado;
                 console.log("lecciones ----------->", lecciones, newEstado, state);
                 // Recargar los modulo después de editar el state
                 // await cargarModulos();
+            }*/
+            const result = await Swal.fire({
+                title: '¿Estás seguro?',
+                text: '¿Estás seguro de que deseas cambiar el estado de la leccion?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.isConfirmed) {
+                const newEstado = state === '0' ? '1' : '0';
+                try {
+                    lecciones.value[id]["state"] = newEstado;
+                    Swal.fire('¡Hecho!', 'El estado de la lección ha sido actualizado correctamente.', 'success');
+                } catch (error) {
+                    console.error('Error al cambiar el estado de la lección:', error);
+                    Swal.fire('¡Error!', 'Hubo un error al cambiar el estado de la lección.', 'error');
+                }
             }
         };
 
@@ -535,7 +571,7 @@ export default {
 
         });
 
-        return { codigo, nombre, descripcion, estado, imagen, codigoL, nombreL, estadoL, contenidoL, config, lecciones, idLesson, activeCourses, curso, documentoInput, documents, editor, onFileChange, cancelar, guardarLeccion, eliminarLeccion, openModal, editarEstado, guardarModulo, onDocumentoChange, guardarClicado, campoFaltanteClass, guardarClicado2, campoFaltanteClass2, resetGuardarClicado };
+        return { id, codigo, nombre, descripcion, estado, imagen, codigoL, nombreL, estadoL, contenidoL, config, lecciones, idLesson, activeCourses, curso, documentoInput, documents, editor, onFileChange, cancelar, guardarLeccion, eliminarLeccion, openModal, editarEstado, guardarModulo, onDocumentoChange, guardarClicado, campoFaltanteClass, guardarClicado2, campoFaltanteClass2, resetGuardarClicado };
     }
 };
 </script>
