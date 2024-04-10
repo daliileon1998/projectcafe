@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex justify-content-center align-items-center" style="padding-top: 100px">
+  <div class="d-flex justify-content-center align-items-center" style="padding-top: 50px">
     <div class="card">
       <div class="card-body">
         <img src="../../public/icono.ico" alt="Logo" width="100" height="100" style="display: block; margin: auto;">
@@ -24,7 +24,7 @@
       </div>
     </div>
   </div>
-  <br><br><br><br>
+  <br><br>
 </template>
 
 <script>

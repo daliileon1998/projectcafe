@@ -6,12 +6,14 @@
     <div class="row">
       <!-- Agrega el campo de búsqueda -->
       <div class="col-md-3">
-        <input type="text" class="form-control" v-model="search" placeholder="Buscar..." style="border: 1px solid #000000;" />      </div>
+        <input type="text" class="form-control" v-model="search" placeholder="Buscar..."
+          style="border: 1px solid #000000;" />
+      </div>
       <div class="col-md-7"></div>
-       <!-- Botón para agregar un nuevo curso -->
-       <div class="col-md-2">
+      <!-- Botón para agregar un nuevo curso -->
+      <div class="col-md-2">
         <div class="d-grid">
-          <router-link :to="{ name: 'AddCursos', params: { id:null} }" class="btn btn-success">
+          <router-link :to="{ name: 'AddCursos', params: { id: null } }" class="btn btn-success">
             <font-awesome-icon :icon="['fas', 'plus']" size="xl" /> Añadir
           </router-link>
         </div>
@@ -27,7 +29,7 @@
                 <th>#</th>
                 <th>Codigo</th>
                 <th>Nombre</th>
-                <th>Descripcion</th>
+                <th style="max-width: 100px; overflow: hidden; text-overflow: ellipsis;">Descripcion</th>
                 <th>Imagen</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -36,19 +38,23 @@
             <!-- Cuerpo de la tabla -->
             <tbody>
               <!-- Filas de la tabla, aplicando el filtro de búsqueda -->
-              <tr v-if="filteredCursos.length > 0" v-for="(curso, index) in filteredCursos" :key="curso._id">
+              <tr v-if="paginatedCursos.length > 0" v-for="(curso, index) in paginatedCursos" :key="curso._id">
                 <td>{{ index + 1 }}</td>
                 <td>{{ curso.code }}</td>
                 <td>{{ curso.name }}</td>
-                <td>{{ curso.description }}</td>
-                <td><img v-if="curso.image" :src="'http://localhost:5000/' + curso.image" alt="Imagen de curso" style="max-width: 100px; max-height: 100px;"></td>
+                <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">
+                  {{ curso.description.length > 100 ? curso.description.slice(0, 100) + '...' : curso.description }}
+                </td>
+                <td><img v-if="curso.image" :src="'http://localhost:5000/' + curso.image" alt="Imagen de curso"
+                    style="max-width: 100px; max-height: 100px;"></td>
                 <td>{{ curso.state === '1' ? 'Activo' : 'Inactivo' }}</td>
                 <td>
                   <!-- Botones de acción -->
                   <router-link :to="{ name: 'AddCursos', params: { id: curso._id } }" class="btn btn-warning">
-                    <font-awesome-icon :icon="['fas', 'pen-to-square']" size="xl"/>
+                    <font-awesome-icon :icon="['fas', 'pen-to-square']" size="xl" />
                   </router-link>
-                  <button :class="['btn',curso.state === '0' ? 'btn-success' : 'btn-secondary']" @click="editarEstado(curso._id,curso.state)">
+                  <button :class="['btn', curso.state === '0' ? 'btn-success' : 'btn-secondary']"
+                    @click="editarEstado(curso._id, curso.state)">
                     <font-awesome-icon :icon="curso.estado === '0' ? ['fas', 'toggle-on'] : ['fas', 'toggle-off']" />
                     <span v-if="curso.state === '1'" style="color: white"> Inactivar</span>
                     <span v-else style="color: white"> Activar</span>
@@ -94,14 +100,14 @@ export default {
   setup() {
     const cursos = ref([]);
     const currentPage = ref(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 6;
     const search = ref('');
 
     const cargarCursos = async () => {
       try {
         const response = await axios.get('http://localhost:5000/courses');
         cursos.value = response.data.Courses;
-        console.log("cursos ------->",cursos);
+        console.log("cursos ------->", cursos);
       } catch (error) {
         console.error('Error al obtener cursos:', error);
       }
@@ -111,13 +117,19 @@ export default {
 
     // Filtro computado para aplicar búsqueda
     const filteredCursos = computed(() => {
-      if(Array.isArray(cursos.value) && cursos.value.length > 0){
-      return cursos.value.filter(curso =>
-        curso.name.toLowerCase().includes(search.value.toLowerCase())
-      );
-      }else{
+      if (Array.isArray(cursos.value) && cursos.value.length > 0) {
+        return cursos.value.filter(curso =>
+          curso.name.toLowerCase().includes(search.value.toLowerCase())
+        );
+      } else {
         return [];
       }
+    });
+
+    const paginatedCursos = computed(() => {
+      const startIndex = (currentPage.value - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      return filteredCursos.value.slice(startIndex, endIndex);
     });
 
     // Métodos para la paginación
@@ -147,6 +159,7 @@ export default {
       currentPage.value = page;
     };
 
+
     // Método para cambiar el estado del curso
     const editarEstado = async (id, estado) => {
       // Mostrar mensaje de confirmación antes de editar el estado
@@ -172,7 +185,7 @@ export default {
       }
     };
 
-    return { cursos, filteredCursos, search, currentPage, totalPages, pages, prevPage, nextPage, changePage, editarEstado };
+    return { cursos, filteredCursos,paginatedCursos, search, currentPage, totalPages, pages, prevPage, nextPage, changePage, editarEstado };
   },
 };
 </script>
@@ -184,26 +197,32 @@ export default {
 }
 
 .custom-table th {
-  background-color: #f8f9fa; /* Color de fondo del encabezado */
+  background-color: #f8f9fa;
+  /* Color de fondo del encabezado */
 }
 
 .custom-table td {
-  vertical-align: middle; /* Alineación vertical del contenido de las celdas */
+  vertical-align: middle;
+  /* Alineación vertical del contenido de las celdas */
 }
 
 .custom-table th,
 .custom-table td {
-  border: 1px solid #dee2e6; /* Borde de las celdas */
+  border: 1px solid #dee2e6;
+  /* Borde de las celdas */
 }
 
 .custom-table th,
 .custom-table td,
 .custom-table button {
-  text-align: center; /* Alineación del texto en el centro */
+  text-align: center;
+  /* Alineación del texto en el centro */
 }
 
 .custom-table button {
-  padding: 6px 12px; /* Espaciado interno del botón */
-  font-size: 14px; /* Tamaño de la fuente del botón */
+  padding: 6px 12px;
+  /* Espaciado interno del botón */
+  font-size: 14px;
+  /* Tamaño de la fuente del botón */
 }
 </style>

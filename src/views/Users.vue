@@ -38,7 +38,7 @@
             <!-- Cuerpo de la tabla -->
             <tbody>
               <!-- Filas de la tabla, aplicando el filtro de búsqueda -->
-              <tr v-if="filteredUsers.length > 0" v-for="(user, index) in filteredUsers" :key="user._id">
+              <tr v-if="paginatedCursos.length > 0" v-for="(user, index) in paginatedCursos" :key="user._id">
                 <td>{{ index + 1 }}</td>
                 <td>{{ user.name }}</td>
                 <td>{{ user.username }}</td>
@@ -97,7 +97,7 @@ export default {
   setup() {
     const users = ref([]);
     const currentPage = ref(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 6;
     const search = ref('');
 
     const cargarUsuarios = async () => {
@@ -120,6 +120,12 @@ export default {
       } else {
         return [];
       }
+    });
+
+    const paginatedCursos = computed(() => {
+      const startIndex = (currentPage.value - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      return filteredUsers.value.slice(startIndex, endIndex);
     });
 
     // Métodos para la paginación
@@ -174,7 +180,7 @@ export default {
       }
     };
 
-    return { users, filteredUsers, search, currentPage, totalPages, pages, prevPage, nextPage, changePage, editarEstado };
+    return { users, filteredUsers,paginatedCursos, search, currentPage, totalPages, pages, prevPage, nextPage, changePage, editarEstado };
   },
 };
 </script>

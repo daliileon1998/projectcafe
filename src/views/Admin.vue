@@ -4,13 +4,13 @@
       <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
           <router-link :to="{ name: 'Cursos' }" class="carousel-item active">
-            <img src="../../image_1.jpg" class="d-block w-100" alt="Imagen 1" title="Añadir Cursos">
+            <img src="../../image_1.jpeg" class="d-block w-100" alt="Imagen 1" title="Añadir Cursos">
           </router-link>
           <router-link :to="{ name: 'Cursos' }" class="carousel-item">
-            <img src="../../image_2.jpg" class="d-block w-100" alt="Imagen 2" title="Añadir Modulos">
+            <img src="../../image_2.jpeg" class="d-block w-100" alt="Imagen 2" title="Añadir Modulos">
           </router-link>
           <router-link :to="{ name: 'Cursos' }" class="carousel-item">
-            <img src="../../image_1.jpg" class="d-block w-100" alt="Imagen 3" title="Añadir Usuarios">
+            <img src="../../image_3.jpeg" class="d-block w-100" alt="Imagen 3" title="Añadir Usuarios">
           </router-link>
         </div>
         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
@@ -23,6 +23,8 @@
         </button>
       </div>
     </div>
+    <br>
+    <br>
   </template>
   
   <script>

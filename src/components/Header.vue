@@ -3,19 +3,27 @@
     <h2 style="text-align: center;padding-top: 20px;">✏️Conoce Nuestros Cursos📚</h2>
     <div class="container" style="margin-top: 40px; margin-bottom: 20px;">
       <div class="row text-center">
-        <div class="col-md-4" v-for="(course, index) in paginatedCourses" :key="course._id">
+        <div class="col-md-6 col-lg-4" v-for="(course, index) in paginatedCourses" :key="course._id">
           <router-link :to="{ name: 'CursosUsers', params: { id: course._id } }" style="color: #F5F5DC;">
             <div class="card" style="margin-bottom: 20px;">
               <div class="card-header">
                 <p class="card-text" style="font-weight: bold; font-size: 1.2em;">{{ course.name }}</p>
               </div>
-              <img :src="'http://localhost:5000/' +course.image" class="card-img-top mx-auto mt-3" style="width: 300px; height: 150px;">
+              <img :src="'http://localhost:5000/' + course.image" class="card-img-top mx-auto mt-3"
+                style="width: 300px; max-height: 250px; object-fit: cover;">
               <div class="card-body">
-                <p class="card-text">{{ course.description }}</p>
+                <p class="card-text" style="margin: 0; padding: 0; max-height: 3em; overflow: hidden;">
+                  {{ course.description }}
+                </p>
+                <router-link :to="{ name: 'CursosUsers', params: { id: course._id } }" style="color: #007bff;">
+                  <span v-if="course.description.length > 200">... Leer más</span>
+                </router-link>
               </div>
+
             </div>
           </router-link>
         </div>
+
       </div>
       <nav aria-label="Navegación de páginas">
         <ul class="pagination justify-content-center mt-4">
@@ -52,7 +60,7 @@ export default {
   methods: {
     async fetchCourses() {
       try {
-        const response = await axios.get('http://localhost:5000/courses'); // Realiza una solicitud GET a tu servidor Node.js
+        const response = await axios.get('http://localhost:5000/courses/activos'); // Realiza una solicitud GET a tu servidor Node.js
         this.courses = response.data.Courses; // Asigna los cursos obtenidos de la respuesta a la propiedad courses
       } catch (error) {
         console.error('Error al obtener los cursos:', error);

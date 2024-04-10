@@ -39,7 +39,7 @@
             <!-- Cuerpo de la tabla -->
             <tbody>
               <!-- Filas de la tabla, aplicando el filtro de búsqueda -->
-              <tr v-if="filteredModulos.length > 0" v-for="(modulo, index) in filteredModulos" :key="modulo._id">
+              <tr v-if="paginatedModulos.length > 0" v-for="(modulo, index) in paginatedModulos" :key="modulo._id">
                 <td>{{ index + 1 }}</td>
                 <td>{{ modulo.code }}</td>
                 <td>{{ modulo.name }}</td>
@@ -74,22 +74,22 @@
     </div>
     <!-- Paginación -->
     <div class="row mt-3">
-      <div class="col-md-12">
-        <nav aria-label="Page navigation example">
-          <ul class="pagination justify-content-center">
-            <li class="page-item" :class="{ disabled: currentPage === 1 }">
-              <a class="page-link" href="#" @click="prevPage">Anterior</a>
-            </li>
-            <li class="page-item" v-for="page in pages" :key="page" :class="{ active: currentPage === page }">
-              <a class="page-link" href="#" @click="changePage(page)">{{ page }}</a>
-            </li>
-            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-              <a class="page-link" href="#" @click="nextPage">Siguiente</a>
-            </li>
-          </ul>
-        </nav>
-      </div>
+    <div class="col-md-12">
+      <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" :class="{ 'disabled': currentPage === 1 }">
+            <button class="page-link" @click="prevPage">Anterior</button>
+          </li>
+          <li class="page-item" v-for="page in totalPages" :key="page" :class="{ 'active': page === currentPage }">
+            <button class="page-link" @click="changePage(page)">{{ page }}</button>
+          </li>
+          <li class="page-item" :class="{ 'disabled': currentPage === totalPages }">
+            <button class="page-link" @click="nextPage">Siguiente</button>
+          </li>
+        </ul>
+      </nav>
     </div>
+  </div>
     <div ref="exampleModal" class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
       aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
@@ -203,14 +203,14 @@ export default {
     const lessons = ref([]);
     const module = ref([]);
     const currentPage = ref(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 6; // Cambia el número de elementos por página según tu necesidad
     const search = ref('');
+    
 
     const cargarModulos = async () => {
       try {
         const response = await axios.get('http://localhost:5000/modules');
         modulos.value = await response.data.Modules;
-        console.log("modulos -------->", modulos);
       } catch (error) {
         console.error('Error al obtener modulos:', error);
       }
@@ -229,26 +229,25 @@ export default {
       }
     });
 
-    // Métodos para la paginación
-    const totalPages = computed(() => Math.ceil(filteredModulos.value.length / itemsPerPage));
-
-    const pages = computed(() => {
-      const pagesArray = [];
-      for (let i = 1; i <= totalPages.value; i++) {
-        pagesArray.push(i);
-      }
-      return pagesArray;
+    // Crea una propiedad computada para los módulos paginados
+    const paginatedModulos = computed(() => {
+      const startIndex = (currentPage.value - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      return filteredModulos.value.slice(startIndex, endIndex);
     });
 
-    const prevPage = () => {
-      if (currentPage.value > 1) {
-        currentPage.value--;
-      }
-    };
+    // Métodos para la paginación
+    const totalPages = computed(() => Math.ceil(filteredModulos.value.length / itemsPerPage));
 
     const nextPage = () => {
       if (currentPage.value < totalPages.value) {
         currentPage.value++;
+      }
+    };
+
+    const prevPage = () => {
+      if (currentPage.value > 1) {
+        currentPage.value--;
       }
     };
 
@@ -265,30 +264,42 @@ export default {
     // Método para cambiar el state del modulo
     const editarEstado = async (id, state) => {
 
-      // Mostrar mensaje de confirmación antes de editar el estado
-      const result = await Swal.fire({
-        title: '¿Estás seguro?',
-        text: '¿Estás seguro de que deseas cambiar el estado del Modulo?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí',
-        cancelButtonText: 'Cancelar'
-      });
+// Mostrar mensaje de confirmación antes de editar el estado
+const result = await Swal.fire({
+  title: '¿Estás seguro?',
+  text: '¿Estás seguro de que deseas cambiar el estado del Modulo?',
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonText: 'Sí',
+  cancelButtonText: 'Cancelar'
+});
 
-      if (result.isConfirmed) {
-        const newEstado = state === '0' ? '1' : '0';
-        try {
-          await axios.patch(`http://localhost:5000/modules/${id}/state`, { state: newEstado });
-          await cargarModulos();
-          Swal.fire('¡Hecho!', 'El estado del Modulo ha sido actualizado correctamente.', 'success');
-        } catch (error) {
-          console.error('Error al cambiar el estado del modulo:', error);
-          Swal.fire('¡Error!', 'Hubo un error al cambiar el estado del modulo.', 'error');
-        }
-      }
+if (result.isConfirmed) {
+  const newEstado = state === '0' ? '1' : '0';
+  try {
+    await axios.patch(`http://localhost:5000/modules/${id}/state`, { state: newEstado });
+    await cargarModulos();
+    Swal.fire('¡Hecho!', 'El estado del Modulo ha sido actualizado correctamente.', 'success');
+  } catch (error) {
+    console.error('Error al cambiar el estado del modulo:', error);
+    Swal.fire('¡Error!', 'Hubo un error al cambiar el estado del modulo.', 'error');
+  }
+}
+};
+
+
+    return {
+      modulos,
+      editarEstado, openModal, lessons, module,
+      filteredModulos,
+      paginatedModulos,
+      currentPage,
+      totalPages,
+      nextPage,
+      prevPage,
+      changePage,
+      search
     };
-
-    return { modulos, filteredModulos, search, currentPage, totalPages, pages, prevPage, nextPage, changePage, editarEstado, openModal, lessons, module };
   },
 };
 </script>
